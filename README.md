@@ -1,39 +1,68 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# isolate_task_queue
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages). 
+A Dart package that provides a task queue mechanism utilizing Flutter isolates to manage and execute asynchronous tasks sequentially.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages). 
--->
+# Features
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+ - Sequential Task Execution: Ensures tasks are executed one after another, maintaining order and preventing race conditions.
+ - Parallel Task Execution: Ensures a limited number of tasks are executed concurrently, enhancing efficiency.
+ - Isolate Utilization: Leverages Dart's isolate system to perform tasks without blocking the main thread, enhancing performance.
 
-## Features
+# Getting Started
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+To use isolate_task_queue in your Flutter project:
 
-## Getting started
+## Add Dependency:
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add the following to your pubspec.yaml file:
 
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
-```dart
-const like = 'sample';
+```yaml
+dependencies:
+isolate_task_queue: ^0.0.1
 ```
 
-## Additional information
+## Import the Package:
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+In your Dart code, import the package:
+
+```dart
+import 'package:isolate_task_queue/isolate_task_queue.dart';
+```
+
+# Usage
+Here's a basic example of how to use isolate_task_queue:
+
+```dart
+void main() async {
+final queue = SimpleTaskQueue();
+
+queue.add(() async {
+print("Task 1 start");
+await Future.delayed(Duration(seconds: 2));
+print("Task 1 end");
+});
+
+queue.add(() async {
+print("Task 2 start");
+await Future.delayed(Duration(seconds: 1));
+print("Task 2 end");
+});
+
+queue.add(() async {
+print("Task 3 start");
+await Future.delayed(Duration(milliseconds: 500));
+print("Task 3 end");
+});
+
+print("All tasks added to the queue");
+}
+```
+
+In this example, each task is added to the queue and will execute sequentially, ensuring that each task completes before the next begins.
+
+# Additional Information
+
+ . License: This project is licensed under the MIT License. See the LICENSE file for details.
+ . Contributions: Contributions are welcome! Please open issues or submit pull requests for any enhancements or bug fixes.
+ . Author: mikes222
+
