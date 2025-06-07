@@ -1,10 +1,10 @@
 name: isolate_task_queue
 description: A package for isolate and for task-queue.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/mikes222/isolate_task_queue
 
 environment:
-  sdk: ^3.8.1
+  sdk: '>=3.1.0 <4.0.0'
 
 # Add regular dependencies here.
 dependencies:

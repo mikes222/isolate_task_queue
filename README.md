@@ -1,6 +1,6 @@
 # isolate_task_queue
 
-A Dart package that provides a task queue mechanism utilizing Flutter isolates to manage and execute asynchronous tasks sequentially.
+A Dart package that provides a task queue mechanism as well as isolates to manage and execute asynchronous tasks.
 
 # Features
 
@@ -12,16 +12,16 @@ A Dart package that provides a task queue mechanism utilizing Flutter isolates t
 
 To use isolate_task_queue in your Flutter project:
 
-## Add Dependency:
+**Add Dependency:**
 
 Add the following to your pubspec.yaml file:
 
 ```yaml
 dependencies:
-isolate_task_queue: ^0.0.1
+  isolate_task_queue: ^1.0.0
 ```
 
-## Import the Package:
+**Import the Package:**
 
 In your Dart code, import the package:
 
@@ -34,27 +34,27 @@ Here's a basic example of how to use isolate_task_queue:
 
 ```dart
 void main() async {
-final queue = SimpleTaskQueue();
-
-queue.add(() async {
-print("Task 1 start");
-await Future.delayed(Duration(seconds: 2));
-print("Task 1 end");
-});
-
-queue.add(() async {
-print("Task 2 start");
-await Future.delayed(Duration(seconds: 1));
-print("Task 2 end");
-});
-
-queue.add(() async {
-print("Task 3 start");
-await Future.delayed(Duration(milliseconds: 500));
-print("Task 3 end");
-});
-
-print("All tasks added to the queue");
+    final queue = SimpleTaskQueue();
+    
+    queue.add(() async {
+        print("Task 1 start");
+        await Future.delayed(Duration(seconds: 2));
+        print("Task 1 end");
+    });
+    
+    queue.add(() async {
+        print("Task 2 start");
+        await Future.delayed(Duration(seconds: 1));
+        print("Task 2 end");
+    });
+    
+    queue.add(() async {
+        print("Task 3 start");
+        await Future.delayed(Duration(milliseconds: 500));
+        print("Task 3 end");
+    });
+    
+    print("All tasks added to the queue and will execute sequentially.");
 }
 ```
 
@@ -62,7 +62,7 @@ In this example, each task is added to the queue and will execute sequentially, 
 
 # Additional Information
 
- . License: This project is licensed under the MIT License. See the LICENSE file for details.
- . Contributions: Contributions are welcome! Please open issues or submit pull requests for any enhancements or bug fixes.
- . Author: mikes222
+ - License: This project is licensed under the MIT License. See the LICENSE file for details.
+ - Contributions: Contributions are welcome! Please open issues or submit pull requests for any enhancements or bug fixes.
+ - Author: mikes222
 
