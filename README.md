@@ -61,11 +61,13 @@ void main() async {
 In this example, each task is added to the queue and will execute sequentially, ensuring that each task completes before the next begins.
 
 
-=====
+---
+
 
 # Simple Isolate
 
 Consider using Isolate.run() instead if this is the only usecase for you
+
 ```dart
 @pragma('vm:entry-point')
 Future<String> entryPoint(int key) async {
@@ -73,6 +75,8 @@ Future<String> entryPoint(int key) async {
   return "Hello Tester, wait: $key secs, is isolate: $isIsolate";
 }
 ```
+
+Note that entryPoint methods always needs the @pragma('vm:entry-point') annotation.
 
 # Isolate with class with instanceparam
 
@@ -91,7 +95,7 @@ class WorkingClass {
 }
 ```
 
-Afterwards create a wrapper to use the class in an isolate. Note that we keep the signature of the methods same as the original class so it is easily interchangeable.
+Afterwards create a wrapper to use the class in an isolate. Note that we keep the signature of the methods the same as the original class so it is easily interchangeable.
 
 ```dart
 @pragma('vm:entry-point')
@@ -102,38 +106,47 @@ class IsolateWorkingClass {
 
   static Future<IsolateWorkingClass> instantiate(String instanceparam) async {
     IsolateWorkingClass isolateWorkingClass = IsolateWorkingClass();
-    isolateWorkingClass._isolateInstance = await FlutterIsolateInstance.createInstance(createInstance: createInstanceStatic, instanceParams: instanceparam);
+    isolateWorkingClass._isolateInstance = await FlutterIsolateInstance.createInstance(createInstance: _createInstanceStatic, instanceParams: instanceparam);
     return isolateWorkingClass;
   }
 
   // same method signature as the original WorkingClass method
   Future<String> entryPoint(int key) async {
-    return await _isolateInstance.compute(entryPointStatic, key);
+    return await _isolateInstance.compute(_entryPointStatic, key);
   }
 
   @pragma('vm:entry-point')
-  static void createInstanceStatic(Object object) {
+  static void _createInstanceStatic(Object object) {
     _workingClass = WorkingClass(object as String);
   }
 
   @pragma('vm:entry-point')
-  static Future<String> entryPointStatic(int key) async {
+  static Future<String> _entryPointStatic(int key) async {
     return _workingClass!.entryPoint(key);
   }
 }
 ```
 
-Now use the new isolate. This usecase is useful if you need to handle large quantities of data to the isolate which are not changing during the lifetime of the isolate.
+Now use the new isolate. This usecase is useful if 
+
+1. you need to handle large quantities of data to the isolate during initialization. (Data that is not changing during the lifetime of the isolate)
+2. you want to reuse the isolate multiple times
+3. you want to call the isolate method multiple times without waiting for the result of the previous method call. 
 
 ```dart
     IsolateWorkingClass workingClass = await IsolateWorkingClass.instantiate("isolateParams");
     String reply = await workingClass.entryPoint(2);
 ```
 
-# Todo:
+# To be documented:
 
-- Isolate returns a  stream of events
+- Isolate returns a stream of events
 - Isolatepool if you are not allowed to concurrently call the isolate method
+
+**Notes:**
+
+To handle multiple parameters create a helper class containing the parameters. Alternatively you can handle a map with the desired parameters. 
+
 
 
 # Additional Information

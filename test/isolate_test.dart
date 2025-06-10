@@ -86,22 +86,22 @@ class IsolateWorkingClass {
 
   static Future<IsolateWorkingClass> instantiate(String instanceparam) async {
     IsolateWorkingClass isolateWorkingClass = IsolateWorkingClass();
-    isolateWorkingClass._isolateInstance = await FlutterIsolateInstance.createInstance(createInstance: createInstanceStatic, instanceParams: instanceparam);
+    isolateWorkingClass._isolateInstance = await FlutterIsolateInstance.createInstance(createInstance: _createInstanceStatic, instanceParams: instanceparam);
     return isolateWorkingClass;
   }
 
   // same method signature as the original WorkingClass method
   Future<String> entryPoint(int key) async {
-    return await _isolateInstance.compute(entryPointStatic, key);
+    return await _isolateInstance.compute(_entryPointStatic, key);
   }
 
   @pragma('vm:entry-point')
-  static void createInstanceStatic(Object object) {
+  static void _createInstanceStatic(Object object) {
     _workingClass = WorkingClass(object as String);
   }
 
   @pragma('vm:entry-point')
-  static Future<String> entryPointStatic(int key) async {
+  static Future<String> _entryPointStatic(int key) async {
     return _workingClass!.entryPoint(key);
   }
 }
