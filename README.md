@@ -60,6 +60,82 @@ void main() async {
 
 In this example, each task is added to the queue and will execute sequentially, ensuring that each task completes before the next begins.
 
+
+=====
+
+# Simple Isolate
+
+Consider using Isolate.run() instead if this is the only usecase for you
+```dart
+@pragma('vm:entry-point')
+Future<String> entryPoint(int key) async {
+  await Future.delayed(Duration(seconds: key));
+  return "Hello Tester, wait: $key secs, is isolate: $isIsolate";
+}
+```
+
+# Isolate with class with instanceparam
+
+First, create your class without considering isolates:
+
+```dart
+class WorkingClass {
+  final String instanceparam;
+
+  WorkingClass(this.instanceparam);
+
+  Future<String> entryPoint(int key) async {
+    await Future.delayed(Duration(seconds: key));
+    return "Hello $instanceparam tester, wait: $key secs, is isolate: $isIsolate";
+  }
+}
+```
+
+Afterwards create a wrapper to use the class in an isolate. Note that we keep the signature of the methods same as the original class so it is easily interchangeable.
+
+```dart
+@pragma('vm:entry-point')
+class IsolateWorkingClass {
+  late final FlutterIsolateInstance _isolateInstance;
+
+  static WorkingClass? _workingClass;
+
+  static Future<IsolateWorkingClass> instantiate(String instanceparam) async {
+    IsolateWorkingClass isolateWorkingClass = IsolateWorkingClass();
+    isolateWorkingClass._isolateInstance = await FlutterIsolateInstance.createInstance(createInstance: createInstanceStatic, instanceParams: instanceparam);
+    return isolateWorkingClass;
+  }
+
+  // same method signature as the original WorkingClass method
+  Future<String> entryPoint(int key) async {
+    return await _isolateInstance.compute(entryPointStatic, key);
+  }
+
+  @pragma('vm:entry-point')
+  static void createInstanceStatic(Object object) {
+    _workingClass = WorkingClass(object as String);
+  }
+
+  @pragma('vm:entry-point')
+  static Future<String> entryPointStatic(int key) async {
+    return _workingClass!.entryPoint(key);
+  }
+}
+```
+
+Now use the new isolate. This usecase is useful if you need to handle large quantities of data to the isolate which are not changing during the lifetime of the isolate.
+
+```dart
+    IsolateWorkingClass workingClass = await IsolateWorkingClass.instantiate("isolateParams");
+    String reply = await workingClass.entryPoint(2);
+```
+
+# Todo:
+
+- Isolate returns a  stream of events
+- Isolatepool if you are not allowed to concurrently call the isolate method
+
+
 # Additional Information
 
  - License: This project is licensed under the MIT License. See the LICENSE file for details.

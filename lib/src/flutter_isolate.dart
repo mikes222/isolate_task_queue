@@ -15,7 +15,7 @@ typedef Future<Stream<V>> StreamEntryPoint<V, R>(R request);
 
 /// always annotate your entry point with
 /// ``@pragma('vm:entry-point')``
-typedef void CreateInstanceFunction(Object object);
+typedef CreateInstanceFunction = void Function(Object object);
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -108,9 +108,9 @@ class FlutterIsolateInstance {
   Isolate? _isolate;
 
   // complete() will be called if the isolate is ready to receive commands.
-  Completer _isolateCompleter = Completer();
+  final Completer _isolateCompleter = Completer();
 
-  Map<int, _FlutterProcess> _flutterProcesses = {};
+  final Map<int, _FlutterProcess> _flutterProcesses = {};
 
   FlutterIsolateInstance._();
 
