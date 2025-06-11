@@ -7,11 +7,11 @@ import 'package:rxdart/rxdart.dart';
 
 /// always annotate your entry point with
 /// ``@pragma('vm:entry-point')``
-typedef Future<V> EntryPoint<V, R>(R request);
+typedef EntryPoint<V, R> = Future<V> Function(R request);
 
 /// always annotate your entry point with
 /// ``@pragma('vm:entry-point')``
-typedef Future<Stream<V>> StreamEntryPoint<V, R>(R request);
+typedef StreamEntryPoint<V, R> = Future<Stream<V>> Function(R request);
 
 /// always annotate your entry point with
 /// ``@pragma('vm:entry-point')``
@@ -226,12 +226,12 @@ class FlutterIsolateInstance {
     return _isolateCompleter.future;
   }
 
-  Future<void> _listenToIsolateError(ReceivePort receivePort) async {
-    await for (var data in receivePort) {
-      print("Error: ${data.toString()} ${data.runtimeType}");
-      throw Exception(data);
-    }
-  }
+  // Future<void> _listenToIsolateError(ReceivePort receivePort) async {
+  //   await for (var data in receivePort) {
+  //     print("Error: ${data.toString()} ${data.runtimeType}");
+  //     throw Exception(data);
+  //   }
+  // }
 
   /// listen to the results of an isolate. This method runs in the main isolate.
   Future<void> _listenToIsolate(ReceivePort receivePort) async {
