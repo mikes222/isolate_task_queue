@@ -9,6 +9,11 @@ abstract class TaskQueue {
   /// Subsquent calls to [add] will throw a [QueueCancelledException].
   void cancel();
 
+  bool get isCancelled;
+
+  /// Removes all unstarted jobs from the queue. The future of these jobs will never return.
+  void clear();
+
   /// Adds the future-returning closure to the queue.
   ///
   /// It will be executed after futures returned
@@ -27,6 +32,7 @@ class SimpleTaskQueue implements TaskQueue {
 
   bool _isCancelled = false;
 
+  @override
   bool get isCancelled => _isCancelled;
 
   bool _isRunning = false;
@@ -38,6 +44,11 @@ class SimpleTaskQueue implements TaskQueue {
     }
     _nextCycle.clear();
     _isCancelled = true;
+  }
+
+  @override
+  void clear() {
+    _nextCycle.clear();
   }
 
   @override
@@ -77,6 +88,7 @@ class ParallelTaskQueue implements TaskQueue {
 
   bool _isCancelled = false;
 
+  @override
   bool get isCancelled => _isCancelled;
 
   int _runningCount = 0;
@@ -92,6 +104,11 @@ class ParallelTaskQueue implements TaskQueue {
     }
     _nextCycle.clear();
     _isCancelled = true;
+  }
+
+  @override
+  void clear() {
+    _nextCycle.clear();
   }
 
   @override

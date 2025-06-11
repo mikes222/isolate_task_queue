@@ -175,17 +175,7 @@ class FlutterIsolateInstance {
     // Listen for messages from main isolate and returns the results.
     await for (var data in receivePort) {
       if (data is _IsolateRequestInstanceParams) {
-        try {
-          final entryPointHandle = CallbackHandle.fromRawHandle(data.entryPointHandle);
-          final entryPoint = PluginUtilities.getCallbackFromHandle(entryPointHandle);
-          entryPoint!(data.parameter).then((result) {
-            // return result to main isolate
-            isolateInitParams.sendPort.send(_IsolateReplyInstanceParams(id: data.id, result: result));
-          });
-        } catch (error, stacktrace) {
-          // return error to main isolate
-          isolateInitParams.sendPort.send(_IsolateErrorInstanceParams.error(id: data.id, error: error, stacktrace: stacktrace));
-        }
+        unawaited(_execute(isolateInitParams, data));
       } else if (data is _IsolateRequestStreamParams) {
         try {
           final entryPointHandle = CallbackHandle.fromRawHandle(data.entryPointHandle);
@@ -207,18 +197,40 @@ class FlutterIsolateInstance {
     return;
   }
 
+  static Future _execute(_IsolateInitInstanceParams isolateInitParams, _IsolateRequestInstanceParams data) async {
+    try {
+      final entryPointHandle = CallbackHandle.fromRawHandle(data.entryPointHandle);
+      final entryPoint = PluginUtilities.getCallbackFromHandle(entryPointHandle);
+      var result = await entryPoint!(data.parameter);
+      // return result to main isolate
+      isolateInitParams.sendPort.send(_IsolateReplyInstanceParams(id: data.id, result: result));
+    } catch (error, stacktrace) {
+      // return error to main isolate
+      isolateInitParams.sendPort.send(_IsolateErrorInstanceParams.error(id: data.id, error: error, stacktrace: stacktrace));
+    }
+  }
+
   /// Starts a new isolate. Do not call this directly. Use [isolateCompute] instead. This runs in the main isolate.
   Future<void> start(CreateInstanceFunction? createInstance, Object? instanceParams) async {
     ReceivePort receivePort = ReceivePort();
+    // var errorRp = ReceivePort();
+    // unawaited(_listenToIsolateError(errorRp));
     int? createInstanceHandle;
     if (createInstance != null) createInstanceHandle = PluginUtilities.getCallbackHandle(createInstance)!.toRawHandle();
 
     _IsolateInitInstanceParams initParams =
         _IsolateInitInstanceParams(ServicesBinding.rootIsolateToken!, receivePort.sendPort, createInstanceHandle, instanceParams);
-    _isolate = await Isolate.spawn<_IsolateInitInstanceParams>(isolateEntryPoint, initParams);
+    _isolate = await Isolate.spawn<_IsolateInitInstanceParams>(isolateEntryPoint, initParams); //, onError: errorRp.sendPort);
     // let the listener run in background of the main isolate
     unawaited(_listenToIsolate(receivePort));
     return _isolateCompleter.future;
+  }
+
+  Future<void> _listenToIsolateError(ReceivePort receivePort) async {
+    await for (var data in receivePort) {
+      print("Error: ${data.toString()} ${data.runtimeType}");
+      throw Exception(data);
+    }
   }
 
   /// listen to the results of an isolate. This method runs in the main isolate.

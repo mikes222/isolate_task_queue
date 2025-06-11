@@ -64,6 +64,13 @@ void main() {
         expect(reply3, equals("Hello isolateParams tester, wait: 2 secs, is isolate: true"));
       }
     });
+
+    test('Isolate throws an exception', () async {
+      {
+        IsolateWorkingClass workingClass = await IsolateWorkingClass.instantiate("isolateExceptionParams");
+        expect(() => workingClass.entryPoint(-1), throwsException);
+      }
+    });
   });
 }
 
@@ -115,6 +122,7 @@ class WorkingClass {
   WorkingClass(this.instanceparam);
 
   Future<String> entryPoint(int key) async {
+    if (key <= 0) throw Exception("Invalid key $key");
     await Future.delayed(Duration(seconds: key));
     return "Hello $instanceparam tester, wait: $key secs, is isolate: $isIsolate";
   }

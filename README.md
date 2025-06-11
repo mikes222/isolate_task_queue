@@ -4,9 +4,11 @@ A Dart package that provides a task queue mechanism as well as isolates to manag
 
 # Features
 
- - Sequential Task Execution: Ensures tasks are executed one after another, maintaining order and preventing race conditions.
- - Parallel Task Execution: Ensures a limited number of tasks are executed concurrently, enhancing efficiency.
- - Isolate Utilization: Leverages Dart's isolate system to perform tasks without blocking the main thread, enhancing performance.
+ - **Sequential Task Execution**: Ensures tasks are executed one after another, maintaining order and preventing race conditions.
+ - **Parallel Task Execution**: Ensures a limited number of tasks are executed concurrently, enhancing efficiency.
+ - **Isolate method calls**: Leverages Dart's isolate system to perform tasks without blocking the main thread, enhancing performance.
+ - **Isolate returning streams**: Calling an isolate and wait for the stream of events from the isolate
+ - **Isolate pool**: Create a pool of isolates and delegate each call to another free isolate. 
 
 # Getting Started
 
@@ -29,7 +31,10 @@ In your Dart code, import the package:
 import 'package:isolate_task_queue/isolate_task_queue.dart';
 ```
 
-# Usage
+# Getting Started with Task execution
+
+## Sequential task execution
+
 Here's a basic example of how to use isolate_task_queue:
 
 ```dart
@@ -60,11 +65,20 @@ void main() async {
 
 In this example, each task is added to the queue and will execute sequentially, ensuring that each task completes before the next begins.
 
+## Parallel task execution
+
+Instantiate the queue like this:
+
+```dart
+final queue = ParallelTaskQueue(2);
+```
+
+The handling is the same as the sequential execution explained above.
 
 ---
 
 
-# Simple Isolate
+# Getting started with Isolate handling
 
 Consider using Isolate.run() instead if this is the only usecase for you
 
@@ -78,7 +92,7 @@ Future<String> entryPoint(int key) async {
 
 Note that entryPoint methods always needs the @pragma('vm:entry-point') annotation.
 
-# Isolate with class with instanceparam
+## Isolate with class with instanceparam
 
 First, create your class without considering isolates:
 
@@ -138,10 +152,16 @@ Now use the new isolate. This usecase is useful if
     String reply = await workingClass.entryPoint(2);
 ```
 
-# To be documented:
+## Isolate returns a stream of events
 
-- Isolate returns a stream of events
-- Isolatepool if you are not allowed to concurrently call the isolate method
+To be documented
+
+
+## Isolatepool
+
+if you are not allowed to concurrently call the isolate method.
+
+To be documented
 
 **Notes:**
 
